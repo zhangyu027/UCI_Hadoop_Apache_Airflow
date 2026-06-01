@@ -5,13 +5,13 @@ This project supports Day 5–6 Spark + Airflow ETL.
 ## Start
 
 ```bash
-cd ~/projects/UCI_Hadoop_Apache_Airflow/day5_day6_spark_airflow_etl_project
+cd day5_day6_spark_airflow_etl_project
 docker compose down -v
 docker compose up --build -d
+docker compose ps
 ```
 
 Open:
-docker compose ps
 ```text
 http://127.0.0.1:8082
 ```

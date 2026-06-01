@@ -3,14 +3,22 @@ FROM apache/airflow:2.9.3-python3.10
 USER root
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends openjdk-17-jre-headless curl \
+    && apt-get install -y --no-install-recommends \
+        default-jdk-headless \
+        procps \
+        curl \
+        ca-certificates \
     && mkdir -p /opt/airflow/jars \
-    && curl -L -o /opt/airflow/jars/postgresql-42.7.3.jar https://jdbc.postgresql.org/download/postgresql-42.7.3.jar \
+    && curl -fsSL -o /opt/airflow/jars/postgresql-42.7.3.jar \
+        https://jdbc.postgresql.org/download/postgresql-42.7.3.jar \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64
+ENV JAVA_HOME=/usr/lib/jvm/default-java
 ENV PATH="${JAVA_HOME}/bin:${PATH}"
+
+# Fail the Docker build immediately if Java or ps is not available.
+RUN java -version && ps --version
 
 USER airflow
 
