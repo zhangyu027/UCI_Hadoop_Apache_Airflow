@@ -11,7 +11,7 @@ docker compose up --build -d
 ```
 
 Open:
-
+docker compose ps
 ```text
 http://127.0.0.1:8082
 ```
