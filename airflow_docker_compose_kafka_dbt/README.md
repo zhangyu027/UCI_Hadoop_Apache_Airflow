@@ -105,15 +105,7 @@ A Flask-Limiter warning about in-memory rate-limit storage may appear in local d
 http://localhost:8081
 ```
 
-The database migration does not create a UI user. For a new local installation, create one with:
-
-```bash
-docker compose exec airflow-webserver airflow users create \
-  --username admin --firstname Admin --lastname User \
-  --role Admin --email admin@example.com --password admin
-```
-
-For local development only, log in with `admin` / `admin`. Use a stronger password if this service is exposed beyond your Mac.
+For the first-run administrator setup, see **Initialize the Airflow administrator** above.
 
 ## Start the analytics database and Kafka stack
 
