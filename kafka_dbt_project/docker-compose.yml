@@ -32,8 +32,9 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: analytics
+    # Host port 5433 avoids collision with Airflow metadata PostgreSQL (5432).
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - kafka_dbt_postgres_data:/var/lib/postgresql/data
 
