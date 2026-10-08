@@ -31,6 +31,10 @@ services:
     environment:
       AIRFLOW__CORE__EXECUTOR: SequentialExecutor
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airflow-postgres/airflow
+      DBT_HOST: host.docker.internal
+      DBT_PORT: "5433"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - ./dags:/opt/airflow/dags
       - ../kafka_dbt_project:/opt/airflow/kafka_dbt_project
@@ -46,6 +50,10 @@ services:
     environment:
       AIRFLOW__CORE__EXECUTOR: SequentialExecutor
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airflow-postgres/airflow
+      DBT_HOST: host.docker.internal
+      DBT_PORT: "5433"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - ./dags:/opt/airflow/dags
       - ../kafka_dbt_project:/opt/airflow/kafka_dbt_project
