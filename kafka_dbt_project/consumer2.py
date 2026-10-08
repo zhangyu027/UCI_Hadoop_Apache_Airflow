@@ -42,7 +42,7 @@ values (%s, %s, %s, %s, %s, %s, %s, %s, %s);
 def main() -> None:
     connection = psycopg2.connect(
         host="localhost",
-        port=5432,
+        port=5433,
         database="analytics",
         user="postgres",
         password="postgres",
