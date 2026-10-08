@@ -3,10 +3,10 @@ default:
   outputs:
     dev:
       type: postgres
-      host: localhost
+      host: "{{ env_var('DBT_HOST', 'localhost') }}"
       user: postgres
       password: postgres
-      port: 5432
+      port: "{{ env_var('DBT_PORT', '5433') | int }}"
       dbname: analytics
       schema: public
       threads: 1

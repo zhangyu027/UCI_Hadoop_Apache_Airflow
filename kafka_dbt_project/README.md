@@ -77,6 +77,24 @@ dbt run --profiles-dir .dbt
 dbt test --profiles-dir .dbt
 ```
 
+## Project boundaries and duplicate DAG cleanup
+
+This folder owns the Kafka scripts, analytics PostgreSQL, dbt models and optional dashboard. The **only supported Airflow DAG** now lives at `../airflow_docker_compose_kafka_dbt/dags/kafka_dbt_pipeline_dag.py`. The obsolete duplicate under `kafka_dbt_project/dags/` used a Mac-specific absolute path and has been deleted. Its `dbt test` step is included in the supported DAG.
+
+Airflow orchestrates dbt transformations and tests; the Kafka producer and continuous consumer are launched separately during this lab. Both stacks can run together because they use different host PostgreSQL ports.
+
+## Database connections
+
+| Context | Database | Host | Port |
+|---|---|---|---|
+| Host (Mac) | Kafka/dbt analytics | `localhost` | `5433` |
+| Airflow container | Kafka/dbt analytics | `host.docker.internal` | `5433` |
+| Host (Mac) | Airflow metadata | `localhost` | `5432` |
+
+`docker-compose.yml` publishes analytics PostgreSQL as `5433:5432`. The dbt profile defaults to `localhost:5433` and accepts `DBT_HOST` and `DBT_PORT` environment overrides. The Airflow stack supplies the container-specific values. `consumer2.py` uses host port 5433 by default and accepts `ANALYTICS_DB_PORT` as an override.
+
+These defaults are designed for **Docker Desktop on macOS**. Do not expect `localhost` from one container to refer to another container.
+
 ## Start standalone Kafka and PostgreSQL
 
 Run this only if you want to test Kafka and PostgreSQL from this folder directly:
@@ -134,9 +152,15 @@ Terminal 2:
 python producer.py
 ```
 
-The consumer inserts Kafka messages into PostgreSQL.
+The consumer inserts Kafka messages into the analytics PostgreSQL on host port 5433. Keep the consumer terminal open while generating events, then stop it with Ctrl+C after events are ingested.
 
 ## Run dbt locally
+
+Use the analytics stack on port 5433. Check that the Kafka consumer has created and populated the raw tables first.
+
+If your shell already has `DBT_HOST` or `DBT_PORT` set for another service, unset them or set `DBT_HOST=localhost DBT_PORT=5433` for local dbt commands.
+
+
 
 ```bash
 dbt debug --profiles-dir .dbt
@@ -216,6 +240,18 @@ The producer now generates profit data in addition to sales events:
 ```bash
 streamlit run dashboard.py
 ```
+
+## Run the Airflow DAG (optional)
+
+Start the sibling Airflow stack separately:
+
+```bash
+cd ../airflow_docker_compose_kafka_dbt
+docker compose up -d
+docker compose exec airflow-scheduler airflow dags list
+```
+
+Then trigger `kafka_dbt_pipeline` from http://localhost:8081. The three tasks are `dbt_debug`, `dbt_run`, and `dbt_test`. The analytics stack must already be running and seeded with events.
 
 ## Stop standalone services
 

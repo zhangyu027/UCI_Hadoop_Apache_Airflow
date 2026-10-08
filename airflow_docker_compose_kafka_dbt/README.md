@@ -20,6 +20,7 @@ UCI_Hadoop_Apache_Airflow/
 │
 └── kafka_dbt_project/
     ├── dbt_project.yml
+    ├── .dbt/profiles.yml
     ├── models/
     └── ...
 ```
@@ -104,12 +105,27 @@ A Flask-Limiter warning about in-memory rate-limit storage may appear in local d
 http://localhost:8081
 ```
 
-Login:
+For the first-run administrator setup, see **Initialize the Airflow administrator** above.
 
-```text
-Username: admin
-Password: admin
+## Start the analytics database and Kafka stack
+
+The Airflow metadata database and the analytics database are **different PostgreSQL services**:
+
+- Airflow metadata: host `localhost:5432` (container service `airflow-postgres:5432`)
+- Kafka/dbt analytics: host `localhost:5433` (inside its own container: port 5432)
+
+Before running the dbt DAG, start the sibling analytics stack:
+
+```bash
+cd ../kafka_dbt_project
+docker compose up -d
+docker compose ps
+cd ../airflow_docker_compose_kafka_dbt
 ```
+
+The Airflow Compose file passes `DBT_HOST=host.docker.internal` and `DBT_PORT=5433` into its webserver and scheduler. The mounted dbt profile uses these variables. This setup is designed for Docker Desktop on macOS.
+
+**Prepare input data first:** run `consumer2.py` and `producer.py` from separate host terminals in `kafka_dbt_project` (with that project's Python requirements installed). The consumer runs continuously until stopped. The Airflow DAG handles `dbt debug → dbt run → dbt test`; it does not start the Kafka producer or consumer.
 
 ## Test dbt inside the Airflow container
 
@@ -120,6 +136,14 @@ dbt debug --profiles-dir .dbt
 dbt run --profiles-dir .dbt
 dbt test --profiles-dir .dbt
 ```
+
+## Verify DAG registration
+
+```bash
+docker compose exec airflow-scheduler airflow dags list
+```
+
+Only `airflow_docker_compose_kafka_dbt/dags/kafka_dbt_pipeline_dag.py` is the supported DAG definition. The old host-specific duplicate DAG was removed from the sibling project's `dags/` folder.
 
 ## Trigger the DAG
 

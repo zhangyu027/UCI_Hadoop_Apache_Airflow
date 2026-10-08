@@ -1,6 +1,7 @@
 """Read sales events and profit data from Kafka and insert them into PostgreSQL."""
 
 import json
+import os
 
 import psycopg2
 from kafka import KafkaConsumer
@@ -42,7 +43,7 @@ values (%s, %s, %s, %s, %s, %s, %s, %s, %s);
 def main() -> None:
     connection = psycopg2.connect(
         host="localhost",
-        port=5432,
+        port=int(os.getenv("ANALYTICS_DB_PORT", "5433")),
         database="analytics",
         user="postgres",
         password="postgres",
