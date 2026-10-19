@@ -10,3 +10,4 @@ __pycache__/
 *.tar.gz
 Assignments/Dataset/cite75_99.txt
 Assignments/Dataset/
+.DS_Store
