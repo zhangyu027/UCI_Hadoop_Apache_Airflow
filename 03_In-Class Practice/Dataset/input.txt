@@ -1,3 +1,0 @@
-Hadoop is useful for big data.
-Hadoop MapReduce uses mapper and reducer files.
-This assignment runs mapper2.py and reducer.py.
