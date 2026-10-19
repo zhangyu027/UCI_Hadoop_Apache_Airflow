@@ -1,5 +1,0 @@
-2026-04-22 10:01:03 INFO BlockManager received heartbeat from worker node
-2026-04-22 10:02:28 WARN CheckpointCoordinator detected delayed checkpoint creation
-2026-04-22 10:03:44 INFO metadata synchronization finished without exception
-2026-04-22 10:04:59 ERROR configurationvalidationservice rejected invalid property
-2026-04-22 10:05:31 INFO replicationmonitor completed verification successfully

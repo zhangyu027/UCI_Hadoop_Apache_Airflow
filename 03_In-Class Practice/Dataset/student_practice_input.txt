@@ -1,5 +1,0 @@
-Hadoop processes large data files.
-MapReduce separates work into map and reduce steps.
-The mapper creates word and count pairs.
-The reducer adds counts for each word.
-Python can simulate MapReduce logic locally.

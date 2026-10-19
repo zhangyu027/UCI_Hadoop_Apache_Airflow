@@ -1,7 +1,0 @@
-authenticationservice	1
-blockstatechange	1
-checkpointcoordinator	1
-configurationvalidationservice	1
-replicationmanager	1
-replicationmonitor	1
-synchronization	2
