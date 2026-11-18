@@ -69,6 +69,35 @@ airflow-webserver    Up, port 8081->8080
 airflow-scheduler    Up
 ```
 
+## Initialize the Airflow administrator (first run only)
+
+The `airflow-init` service runs `airflow db migrate` to prepare the metadata database.
+It does **not** create a web UI user. After `docker compose up -d`, create an administrator:
+
+```bash
+docker compose exec airflow-webserver \
+  airflow users create \
+  --username admin \
+  --firstname Admin \
+  --lastname User \
+  --role Admin \
+  --email admin@example.com \
+  --password admin
+```
+
+You should see `User "admin" created with role "Admin"`.
+
+If the user already exists, inspect users and optionally reset the password:
+
+```bash
+docker compose exec airflow-webserver airflow users list
+docker compose exec airflow-webserver airflow users reset-password --username admin --password admin
+```
+
+The `admin` / `admin` credentials are **for local development only**. Use a unique strong password and avoid committing real credentials to Git.
+
+A Flask-Limiter warning about in-memory rate-limit storage may appear in local development; it does not prevent user creation.
+
 ## Open Airflow
 
 ```text

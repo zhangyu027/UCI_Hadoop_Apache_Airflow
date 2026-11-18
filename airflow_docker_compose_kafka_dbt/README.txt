@@ -1,9 +1,9 @@
-# Fixed airflow_docker_compose_kafka_dbt
+#airflow_docker_compose_kafka_dbt
 
 Folder structure required:
 
 UCI_Hadoop_Apache_Airflow/
-├── airflow_docker_compose_kafka_dbt_FIXED/
+├── airflow_docker_compose_kafka_dbt/
 └── kafka_dbt_project/
 
 IMPORTANT:
