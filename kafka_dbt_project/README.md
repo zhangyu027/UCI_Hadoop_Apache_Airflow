@@ -57,7 +57,19 @@ Airflow DAG orchestration
 Optional Streamlit dashboard
 ```
 
-## Important relationship with Airflow
+## Where to run dbt: Mac vs. Airflow container
+
+**For a Mac terminal (recommended for standalone labs):** use the local project folder, not `/opt/airflow`:
+
+```bash
+cd ~/projects/UCI_Hadoop_Apache_Airflow/kafka_dbt_project
+source .venv/bin/activate
+dbt debug --profiles-dir .dbt
+dbt run --profiles-dir .dbt
+dbt test --profiles-dir .dbt
+```
+
+**For an Airflow container shell only:** `/opt/airflow/kafka_dbt_project` is a path inside the Docker container; it does not exist on your Mac. The commands below require an interactive shell inside a running Airflow container with dbt installed.
 
 The Airflow project mounts this folder with:
 
@@ -65,7 +77,7 @@ The Airflow project mounts this folder with:
 - ../kafka_dbt_project:/opt/airflow/kafka_dbt_project
 ```
 
-Inside the Airflow container, dbt runs from:
+Once inside the Airflow container shell, dbt runs from:
 
 ```bash
 cd /opt/airflow/kafka_dbt_project
