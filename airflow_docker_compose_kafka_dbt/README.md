@@ -11,8 +11,6 @@ UCI_Hadoop_Apache_Airflow/
 │   ├── Dockerfile
 │   ├── requirements.txt
 │   ├── README.md
-│   ├── .dbt/
-│   │   └── profiles.yml
 │   ├── dags/
 │   │   └── kafka_dbt_pipeline_dag.py
 │   ├── logs/
@@ -50,9 +48,15 @@ Inside the Airflow container, dbt sees the project at:
 
 ```bash
 cd ~/projects/UCI_Hadoop_Apache_Airflow/airflow_docker_compose_kafka_dbt
-echo "AIRFLOW_UID=$(id -u)" > .env
+python3 -c 'import secrets; print("AIRFLOW_WEBSERVER_SECRET_KEY=" + secrets.token_hex(32))' >> .env
 docker compose build --no-cache
 docker compose up -d
+```
+
+The `.env` file is local and gitignored. Generate the secret only once, then reuse the same value for both Airflow services. If you already have `AIRFLOW_WEBSERVER_SECRET_KEY` in `.env`, do not append a duplicate. To apply the updated Compose configuration to existing containers, run:
+
+```bash
+docker compose up -d --force-recreate airflow-webserver airflow-scheduler
 ```
 
 ## Check containers
