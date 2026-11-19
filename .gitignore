@@ -12,3 +12,5 @@ Assignments/Dataset/cite75_99.txt
 Assignments/Dataset/
 .DS_Store
 kafka_dbt_project/logs/
+# Day 2-3 lab: generated Spark output (regenerate by running the job)
+day2_day3_hadoop_pyspark_lab/data/output/
