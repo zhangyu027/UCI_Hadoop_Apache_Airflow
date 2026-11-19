@@ -16,9 +16,6 @@ UCI_Hadoop_Apache_Airflow/
     │   └── profiles.yml
     ├── models/
     │   ├── sales_summary.sql
-    │   ├── profit_summary.sql
-    │   ├── product_profit_analysis.sql
-    │   ├── yearly_profit_trends.sql
     │   └── schema.yml
     ├── producer.py
     ├── consumer.py
@@ -49,11 +46,9 @@ Kafka Producer (dual topics)
 ├── sales_topic → raw_sales table
 └── profit_events → raw_profit_events table
     ↓
-Multiple dbt models:
-├── sales_summary (event aggregation)
-├── profit_summary (annual profit by category & year)
-├── product_profit_analysis (product-level metrics)
-└── yearly_profit_trends (year-over-year comparison)
+dbt models (planned expansion):
+├── sales_summary (implemented event aggregation)
+└── sales_summary (currently implemented; profit models are planned, not yet committed)
     ↓
 Airflow DAG orchestration
     ↓
@@ -136,7 +131,18 @@ python producer.py
 
 The consumer inserts Kafka messages into PostgreSQL.
 
-## Run dbt locally
+## Run dbt locally on macOS
+
+**Do not use `/opt/airflow/kafka_dbt_project` in a Mac terminal.** That path exists only inside the Airflow container when the sibling folder is mounted. Start from the repository's dbt project directory (not the repository root):
+
+```bash
+cd ~/projects/UCI_Hadoop_Apache_Airflow/kafka_dbt_project
+ls -la dbt_project.yml .dbt/profiles.yml
+docker compose up -d
+docker compose ps
+```
+
+The local dbt profile connects to PostgreSQL on `localhost:5433`. For container-based Airflow runs, use `DBT_POSTGRES_HOST=host.docker.internal` and `DBT_POSTGRES_PORT=5433` as configured in the Airflow Compose file.
 
 ```bash
 dbt debug --profiles-dir .dbt
@@ -162,24 +168,12 @@ Then:
 -- View sales summary
 select * from sales_summary;
 
--- View profit summary (annual profit by category and year)
-select * from profit_summary;
-
--- View product-level profit analysis
-select * from product_profit_analysis order by total_profit desc;
-
--- View year-over-year profit trends
-select * from yearly_profit_trends order by year desc, annual_profit desc;
-
--- View raw profit events
-select * from raw_profit_events limit 10;
-
 \q
 ```
 
-## New Data: Annual Profit Analysis
+## Planned: Annual Profit Analysis
 
-The producer now generates profit data in addition to sales events:
+The producer includes profit-event generation, but the profit dbt models described below are not currently committed. Do not expect these model views to exist until their SQL files are added:
 
 ### Profit Event Fields
 - `product_id` - Unique identifier for the product
@@ -192,7 +186,7 @@ The producer now generates profit data in addition to sales events:
 - `profit` - Net profit (revenue - cost)
 - `profit_margin` - Profit margin percentage
 
-### New dbt Models
+### Planned dbt Models (not yet in GitHub)
 
 **profit_summary**: Annual aggregates by category and year
 - Total transactions and quantity
@@ -229,3 +223,20 @@ Use the Airflow folder if you want to run the orchestrated DAG:
 cd ../airflow_docker_compose_kafka_dbt
 docker compose up -d
 ```
+
+## Troubleshooting: dbt project/profile not found
+
+If `dbt debug` reports that `dbt_project.yml` or `.dbt/profiles.yml` is missing, run `pwd` and verify you are in `kafka_dbt_project` on the Mac. Use `ls -la .dbt` to see hidden profile files. Do not run the Docker-only `/opt/airflow/...` path directly on macOS.
+
+To run inside the Airflow container instead:
+
+```bash
+cd ~/projects/UCI_Hadoop_Apache_Airflow/airflow_docker_compose_kafka_dbt
+docker compose exec airflow-webserver bash
+cd /opt/airflow/kafka_dbt_project
+dbt debug --profiles-dir .dbt
+```
+
+If dbt connects but `dbt run` fails with `relation raw_sales does not exist`, create/populate `raw_sales` using the sample SQL above or run the Kafka consumer first. A successful `dbt debug` checks configuration and connectivity, not the existence of source tables.
+
+**Current GitHub state:** only `models/sales_summary.sql` is committed. Profit-model documentation is forward-looking; do not assume the additional profit models or their tests are runnable.
