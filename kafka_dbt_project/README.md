@@ -16,9 +16,6 @@ UCI_Hadoop_Apache_Airflow/
     │   └── profiles.yml
     ├── models/
     │   ├── sales_summary.sql
-    │   ├── profit_summary.sql
-    │   ├── product_profit_analysis.sql
-    │   ├── yearly_profit_trends.sql
     │   └── schema.yml
     ├── producer.py
     ├── consumer.py
@@ -83,17 +80,34 @@ Run this only if you want to test Kafka and PostgreSQL from this folder directly
 
 ```bash
 cd ~/projects/UCI_Hadoop_Apache_Airflow/kafka_dbt_project
-docker compose up -d
-docker compose ps
+docker compose up -d postgres zookeeper kafka
+docker compose ps -a
+nc -vz localhost 9092
 ```
 
 ## Install Python dependencies locally
 
 ```bash
-python3 -m venv .venv
+python3.10 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
+python --version  # should be Python 3.10.x
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 ```
+
+## Reliable startup and troubleshooting
+
+1. Start Docker Desktop and verify it is ready with `docker info`.
+2. Start all three services with `docker compose up -d postgres zookeeper kafka`.
+3. Check `docker compose ps -a`: Kafka, ZooKeeper, and PostgreSQL must all show `Up`.
+4. Confirm Kafka is reachable with `nc -vz localhost 9092` before running the consumer.
+5. If Kafka shows `Exited (1)`, inspect `docker compose logs --tail=100 kafka` and `docker compose logs --tail=50 zookeeper`. ZooKeeper may need time to become ready; retry `docker compose up -d kafka` after checking logs.
+6. `ValueError: Invalid file object: None` during `KafkaConsumer` initialization can occur when the broker is unreachable. Check Kafka status and port 9092 first.
+7. `ModuleNotFoundError: No module named 'psycopg2'`: activate `.venv` and install requirements using `python -m pip install -r requirements.txt`.
+8. If `psycopg2-binary==2.9.9` fails to build with Python 3.13, recreate `.venv` using Python 3.10; do not use the wrong interpreter to create the virtual environment.
+9. If dbt cannot connect to PostgreSQL, check `docker compose ps -a` and confirm localhost port `5433` is published.
+
+For a fresh start, run the consumer in Terminal 1, then the producer in Terminal 2. Run dbt only after records have arrived in PostgreSQL. Use `docker compose down` to stop services; avoid `docker compose down -v` unless you intend to delete persistent PostgreSQL data.
 
 ## Create sample PostgreSQL table
 
@@ -134,7 +148,15 @@ Terminal 2:
 python producer.py
 ```
 
-The consumer inserts Kafka messages into PostgreSQL.
+The consumer creates `raw_sales` and `raw_profit_events` if they do not exist, then inserts Kafka messages into PostgreSQL. Keep the consumer running while the producer sends events.
+
+Verify counts from another terminal:
+
+```bash
+docker compose exec postgres psql -U postgres -d analytics -c "SELECT COUNT(*) FROM raw_sales;"
+docker compose exec postgres psql -U postgres -d analytics -c "SELECT COUNT(*) FROM raw_profit_events;"
+```
+
 
 ## Run dbt locally
 
@@ -144,11 +166,7 @@ dbt run --profiles-dir .dbt
 dbt test --profiles-dir .dbt
 ```
 
-Expected output:
-
-```text
-Completed successfully
-```
+`dbt debug` should confirm the connection. `dbt run` builds the SQL models actually present in `models/`; inspect the output for errors rather than assuming all documented profit models exist. The current repository contains `sales_summary.sql` but does not yet include the three profit SQL model files described below. Their entries in `schema.yml` do not create models by themselves. Run `dbt test` after resolving missing-model references and test definitions.
 
 ## Verify dbt output
 
@@ -156,12 +174,13 @@ Completed successfully
 docker exec -it kafka_dbt_project-postgres-1 psql -U postgres -d analytics
 ```
 
-Then:
+Then (only query models that `dbt run` actually created):
 
 ```sql
 -- View sales summary
 select * from sales_summary;
 
+-- The following queries require adding the corresponding profit SQL models first.
 -- View profit summary (annual profit by category and year)
 select * from profit_summary;
 
@@ -192,7 +211,7 @@ The producer now generates profit data in addition to sales events:
 - `profit` - Net profit (revenue - cost)
 - `profit_margin` - Profit margin percentage
 
-### New dbt Models
+### Planned dbt Models (SQL files not yet implemented)
 
 **profit_summary**: Annual aggregates by category and year
 - Total transactions and quantity

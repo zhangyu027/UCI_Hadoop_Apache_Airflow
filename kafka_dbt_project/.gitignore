@@ -1,4 +1,12 @@
-
 __pycache__/
 *.pyc
 .env
+.venv/
+.venv_*/
+.env.*
+!.env.example
+logs/
+target/
+dbt_packages/
+.dbt/logs/
+.DS_Store
