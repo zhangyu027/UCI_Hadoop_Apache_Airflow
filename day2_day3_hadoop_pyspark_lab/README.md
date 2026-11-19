@@ -118,11 +118,13 @@ PySpark works
 
 ## 8. Run the sales summary job
 
-Inside the `day3-pyspark` container:
+From your **Mac terminal**, run this command after Docker is started (no need to enter the container first):
 
 ```bash
-python /home/jovyan/work/sales_summary.py
+docker exec -it day3-pyspark python /home/jovyan/work/sales_summary.py
 ```
+
+If you are already inside the `day3-pyspark` container from Step 7, use `python /home/jovyan/work/sales_summary.py` instead.
 
 Expected output includes:
 
@@ -134,12 +136,28 @@ Window Function Ranking
 Wrote category summary to: /home/jovyan/data/output/category_sales_summary
 ```
 
-## 9. Run the word count job
+### Verify generated CSV files
 
-Inside the `day3-pyspark` container:
+From your **Mac terminal**, run:
 
 ```bash
-python /home/jovyan/work/word_count.py
+docker exec day3-pyspark ls -la /home/jovyan/data/output/category_sales_summary/
+```
+
+Expected files include `_SUCCESS` and `part-00000-<generated-id>-c000.csv` (the unique filename changes on each run). To see the CSV contents:
+
+```bash
+docker exec day3-pyspark sh -c 'cat /home/jovyan/data/output/category_sales_summary/part-*.csv'
+```
+
+Docker Compose maps the local `./data` directory to `/home/jovyan/data` inside the PySpark container. Therefore the CSV also appears at `data/output/category_sales_summary/` in the project on your Mac. Starting Docker or opening JupyterLab alone does **not** generate output; run the script each time you need to regenerate it. Spark uses overwrite mode, so rerunning the job replaces the previous output directory.
+
+## 9. Run the word count job
+
+From your Mac terminal:
+
+```bash
+docker exec -it day3-pyspark python /home/jovyan/work/word_count.py
 ```
 
 Expected output includes:
@@ -156,7 +174,7 @@ In Jupyter, open:
 data/output/category_sales_summary/
 ```
 
-Open the `part-00000-....csv` file.
+Refresh the JupyterLab file browser if needed, then open the generated `part-00000-....csv` file.
 
 Expected rows:
 
@@ -164,12 +182,6 @@ Expected rows:
 Electronics,2500,833.3333333333334
 Furniture,900,300.0
 Books,65,32.5
-```
-
-Exit:
-
-```bash
-exit
 ```
 
 ## 11. Hadoop/HDFS practice
@@ -228,6 +240,22 @@ docker compose up -d
 ```
 
 ## Troubleshooting
+
+### Problem: `output/part-00000` or `category_sales_summary` is missing
+
+The job creates the output only after successful execution. From the Mac terminal run:
+
+```bash
+docker compose ps
+docker exec -it day3-pyspark python /home/jovyan/work/sales_summary.py
+docker exec day3-pyspark ls -la /home/jovyan/data/output/category_sales_summary/
+```
+
+Check the job's terminal errors if it fails. In JupyterLab, refresh the file browser and open `data/output/category_sales_summary/`. The file is named `part-00000-<generated-id>-c000.csv`, **not** exactly `part-0000`.
+
+### GitHub and generated files
+
+Keep `data/sales.csv`, Python source, Docker configuration, and README in Git. Spark-generated files in `data/output/` can be regenerated and should generally be ignored rather than committed. If output files were previously tracked, removing them from the Git index once with `git rm -r --cached --ignore-unmatch day2_day3_hadoop_pyspark_lab/data/output/` stops tracking without deleting local files.
 
 ### Problem: container name already in use
 
