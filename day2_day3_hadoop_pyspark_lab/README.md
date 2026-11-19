@@ -166,6 +166,12 @@ Furniture,900,300.0
 Books,65,32.5
 ```
 
+Exit:
+
+```bash
+exit
+```
+
 ## 11. Hadoop/HDFS practice
 
 Enter the Hadoop container:
