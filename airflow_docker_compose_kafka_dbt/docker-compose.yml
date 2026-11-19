@@ -16,6 +16,8 @@ services:
       AIRFLOW__CORE__EXECUTOR: SequentialExecutor
       AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW_WEBSERVER_SECRET_KEY:?Set AIRFLOW_WEBSERVER_SECRET_KEY in .env}
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airflow-postgres/airflow
+      DBT_POSTGRES_HOST: host.docker.internal
+      DBT_POSTGRES_PORT: "5433"
     volumes:
       - ./dags:/opt/airflow/dags
       - ../kafka_dbt_project:/opt/airflow/kafka_dbt_project
@@ -31,6 +33,8 @@ services:
       AIRFLOW__CORE__EXECUTOR: SequentialExecutor
       AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW_WEBSERVER_SECRET_KEY:?Set AIRFLOW_WEBSERVER_SECRET_KEY in .env}
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airflow-postgres/airflow
+      DBT_POSTGRES_HOST: host.docker.internal
+      DBT_POSTGRES_PORT: "5433"
     volumes:
       - ./dags:/opt/airflow/dags
       - ../kafka_dbt_project:/opt/airflow/kafka_dbt_project
