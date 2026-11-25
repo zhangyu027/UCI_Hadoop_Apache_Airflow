@@ -32,7 +32,7 @@ day4_airflow_fundamentals_lab/
 Run commands from this folder:
 
 ```bash
-cd ~/projects/UCI_Hadoop_Apache_Airflow/day4_airflow_fundamentals_lab
+cd ~/UCI_Hadoop_Apache_Airflow/day4_airflow_fundamentals_lab
 docker compose up -d
 ```
 

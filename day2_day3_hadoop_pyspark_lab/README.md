@@ -46,7 +46,7 @@ Make sure Docker Desktop is open and running.
 ## 2. Go to the project folder
 
 ```bash
-cd ~/projects/UCI_Hadoop_Apache_Airflow/day2_day3_hadoop_pyspark_lab
+cd ~/UCI_Hadoop_Apache_Airflow/day2_day3_hadoop_pyspark_lab
 ```
 
 ## 3. Clean old containers

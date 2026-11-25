@@ -79,7 +79,7 @@ dbt test --profiles-dir .dbt
 Run this only if you want to test Kafka and PostgreSQL from this folder directly:
 
 ```bash
-cd ~/projects/UCI_Hadoop_Apache_Airflow/kafka_dbt_project
+cd ~/UCI_Hadoop_Apache_Airflow/kafka_dbt_project
 docker compose up -d postgres zookeeper kafka
 docker compose ps -a
 nc -vz localhost 9092

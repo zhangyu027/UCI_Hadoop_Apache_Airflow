@@ -29,7 +29,7 @@ Important: do not keep an empty `kafka_dbt_project` folder inside `airflow_docke
 Docker commands are run from:
 
 ```bash
-cd ~/projects/UCI_Hadoop_Apache_Airflow/airflow_docker_compose_kafka_dbt
+cd ~/UCI_Hadoop_Apache_Airflow/airflow_docker_compose_kafka_dbt
 ```
 
 The dbt project is one folder above, so the volume mapping is:
@@ -47,7 +47,7 @@ Inside the Airflow container, dbt sees the project at:
 ## Start Airflow
 
 ```bash
-cd ~/projects/UCI_Hadoop_Apache_Airflow/airflow_docker_compose_kafka_dbt
+cd ~/UCI_Hadoop_Apache_Airflow/airflow_docker_compose_kafka_dbt
 python3 -c 'import secrets; print("AIRFLOW_WEBSERVER_SECRET_KEY=" + secrets.token_hex(32))' >> .env
 docker compose build --no-cache
 docker compose up -d
